@@ -4,5 +4,7 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  // Set base path for GitHub Pages deployment
+  base: '/trainer-log/',
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });
