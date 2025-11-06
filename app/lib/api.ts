@@ -3,7 +3,7 @@
  * Base URL points to the dog-walking-app backend on Render
  */
 
-const BASE_URL = 'https://pocket-walks.com';
+const BASE_URL = 'https://dog-walking-app.onrender.com';
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
