@@ -1,1 +1,0 @@
-import{w as o,v as i,a as n,p as a}from"./chunk-UIGDSWPH-C3gEZbLY.js";import{u as r}from"./auth-context-C1I0fajX.js";import{L as p}from"./LoadingSpinner-D45_Xrhc.js";const x=o(function(){const{isAuthenticated:s,isLoading:e}=r(),t=i();return n.useEffect(()=>{e||t(s?"/home":"/login")},[s,e,t]),a.jsx(p,{})});export{x as default};
