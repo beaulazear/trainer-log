@@ -12,6 +12,9 @@ import "./app.css";
 import { AuthProvider } from "./lib/auth-context";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: "/trainer-log/favicon.ico", sizes: "any" },
+  { rel: "icon", href: "/trainer-log/favicon.ico", type: "image/png" },
+  { rel: "apple-touch-icon", href: "/trainer-log/favicon.ico" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
