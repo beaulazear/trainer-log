@@ -4,14 +4,20 @@
     <meta charset="utf-8">
     <title>Redirecting...</title>
     <script>
-      // Redirect to index.html with the path as a hash
-      // This avoids React hydration issues
-      const path = window.location.pathname.replace('/trainer-log', '');
-      const redirect = '/trainer-log/' + (path === '/' ? '' : '#' + path);
-      window.location.replace(redirect + window.location.search + window.location.hash);
+      // GitHub Pages SPA redirect
+      // Converts /trainer-log/some/path to /trainer-log/?/some/path
+      var pathSegmentsToKeep = 1;
+      var l = window.location;
+
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
     </script>
   </head>
   <body>
-    <p>Redirecting...</p>
   </body>
 </html>
