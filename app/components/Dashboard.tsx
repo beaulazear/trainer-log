@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Flame, Award, Calendar, Target, TrendingUp } from 'lucide-react';
+import { Plus, Flame, Award, Calendar, Target, TrendingUp, Download } from 'lucide-react';
 import { CircularProgress } from './CircularProgress';
 import { LogSessionDrawer } from './LogSessionDrawer';
 import { MilestoneCelebration } from './MilestoneCelebration';
@@ -46,6 +46,7 @@ export function Dashboard() {
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationMilestone, setCelebrationMilestone] = useState<any>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -117,6 +118,27 @@ export function Dashboard() {
     setEditingSession(null);
   };
 
+  const handleSyncFromInvoices = async () => {
+    try {
+      setIsSyncing(true);
+      setError(null);
+      const result = await trainingSessionsAPI.syncFromInvoices();
+
+      // Show success message or milestones
+      if (result.new_milestones && result.new_milestones.length > 0) {
+        setCelebrationMilestone(result.new_milestones[0]);
+        setShowCelebration(true);
+      }
+
+      // Refresh dashboard to show new data
+      await fetchDashboardData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sync from invoices');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -162,7 +184,7 @@ export function Dashboard() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent mb-1">
-                TrainerPath
+                Trainer Log
               </h1>
               <p className="text-sm text-gray-500">by Pocket Walks</p>
             </div>
@@ -253,6 +275,22 @@ export function Dashboard() {
           <RecentSessions sessions={transformedSessions} onEdit={handleEditSession} />
         </div>
       </div>
+
+      {/* Sync Button - Only show if no sessions yet */}
+      {progress.total_hours === 0 && (
+        <button
+          onClick={handleSyncFromInvoices}
+          disabled={isSyncing}
+          className="fixed bottom-44 right-6 w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Import from invoices"
+        >
+          {isSyncing ? (
+            <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Download className="w-8 h-8" />
+          )}
+        </button>
+      )}
 
       {/* Floating Action Button */}
       <button

@@ -13,7 +13,7 @@ type View = 'dashboard' | 'stats' | 'pets' | 'profile';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "TrainerPath - Dog Training Certification Tracker" },
+    { title: "Trainer Log - Dog Training Certification Tracker" },
     { name: "description", content: "Track your journey to CPDT-KA certification" },
   ];
 }
