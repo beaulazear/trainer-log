@@ -6,4 +6,9 @@ export default {
   // SPA mode is required for GitHub Pages static hosting
   ssr: false,
   basename: "/trainer-log",
+  future: {
+    v3_fetcherPersist: true,
+    v3_relativeSplatPath: true,
+    v3_throwAbortReason: true,
+  },
 } satisfies Config;
