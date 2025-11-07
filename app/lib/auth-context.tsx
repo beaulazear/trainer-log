@@ -8,9 +8,12 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   error: string | null;
+  getToken: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const TOKEN_KEY = 'auth_token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,12 +27,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      // Try to fetch dashboard data to verify session
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // Verify token is valid by making a request
       const response = await fetch('https://dog-walking-app.onrender.com/training/dashboard', {
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
-      setIsAuthenticated(response.ok);
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+      } else {
+        // Token is invalid, remove it
+        localStorage.removeItem(TOKEN_KEY);
+        setIsAuthenticated(false);
+      }
     } catch (err) {
+      localStorage.removeItem(TOKEN_KEY);
       setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
@@ -40,8 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       setIsLoading(true);
-      await authAPI.login(username, password);
-      setIsAuthenticated(true);
+      const response = await authAPI.login(username, password);
+
+      // Store the JWT token
+      if (response.token) {
+        localStorage.setItem(TOKEN_KEY, response.token);
+        setIsAuthenticated(true);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
       throw err;
@@ -52,19 +77,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('https://dog-walking-app.onrender.com/logout', {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) {
+        await fetch('https://dog-walking-app.onrender.com/logout', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
+      localStorage.removeItem(TOKEN_KEY);
       setIsAuthenticated(false);
     }
   };
 
+  const getToken = () => {
+    return localStorage.getItem(TOKEN_KEY);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, error }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, error, getToken }}>
       {children}
     </AuthContext.Provider>
   );

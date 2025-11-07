@@ -21,13 +21,16 @@ async function apiFetch<T>(
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
+  // Get JWT token from localStorage
+  const token = localStorage.getItem('auth_token');
+
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...fetchOptions,
-      credentials: 'include', // Include session cookie
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...fetchOptions.headers,
       },
     });
@@ -118,8 +121,11 @@ export const trainingSessionsAPI = {
 
   // Export training hours as CSV
   exportCSV: async () => {
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(`${BASE_URL}/training_sessions/export`, {
-      credentials: 'include',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
     });
     if (!response.ok) throw new Error('Export failed');
     return await response.blob();
