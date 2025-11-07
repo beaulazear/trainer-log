@@ -5,7 +5,8 @@ export default {
   // Server-side render by default, to enable SPA mode set this to `false`
   // SPA mode is required for GitHub Pages static hosting
   ssr: false,
-  basename: "/trainer-log",
+  // Use basename only for production (GitHub Pages)
+  basename: process.env.NODE_ENV === 'production' ? "/trainer-log" : "/",
   future: {
     v3_fetcherPersist: true,
     v3_relativeSplatPath: true,

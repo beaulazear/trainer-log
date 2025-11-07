@@ -5,11 +5,12 @@ import { Dashboard } from '../components/Dashboard';
 import { StatsView } from '../components/StatsView';
 import { ProfileView } from '../components/ProfileView';
 import { PetsView } from '../components/PetsView';
+import { BooksView } from '../components/BooksView';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useAuth } from '../lib/auth-context';
-import { Home, BarChart3, User, Dog } from 'lucide-react';
+import { Home, BarChart3, User, Dog, BookOpen } from 'lucide-react';
 
-type View = 'dashboard' | 'stats' | 'pets' | 'profile';
+type View = 'dashboard' | 'stats' | 'pets' | 'books' | 'profile';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -44,6 +45,7 @@ export default function HomePage() {
         {currentView === 'dashboard' && <Dashboard />}
         {currentView === 'stats' && <StatsView />}
         {currentView === 'pets' && <PetsView />}
+        {currentView === 'books' && <BooksView />}
         {currentView === 'profile' && <ProfileView />}
       </div>
 
@@ -84,6 +86,18 @@ export default function HomePage() {
           >
             <Dog className="w-6 h-6" />
             <span className="text-xs">Pets</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentView('books')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              currentView === 'books'
+                ? 'text-purple-600'
+                : 'text-gray-400'
+            }`}
+          >
+            <BookOpen className="w-6 h-6" />
+            <span className="text-xs">Books</span>
           </button>
 
           <button

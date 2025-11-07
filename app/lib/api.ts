@@ -287,6 +287,82 @@ export const petsAPI = {
 };
 
 /**
+ * Books API
+ */
+export interface Book {
+  id: number;
+  user_id: number | null;
+  title: string;
+  author: string;
+  category: string;
+  is_default: boolean;
+  status: 'not_started' | 'in_progress' | 'read';
+  progress_percentage: number;
+  notes?: string;
+  rating?: number;
+  description?: string;
+  pages?: number;
+  publisher?: string;
+  year?: number;
+  isbn?: string;
+  price_range?: string;
+  format?: string;
+  why_you_need_it?: string;
+  best_for?: string;
+  completed_date?: string;
+}
+
+export const booksAPI = {
+  // Get all default books (for browsing)
+  getDefaults: () => apiFetch<Book[]>('/books'),
+
+  // Get user's tracked books (my reading list)
+  getMyList: () => apiFetch<Book[]>('/books/my_list'),
+
+  // Add a default book to user's list
+  addToList: (bookId: number) =>
+    apiFetch<Book>(`/books/${bookId}/add_to_list`, {
+      method: 'POST',
+    }),
+
+  // Create a custom user book
+  createCustom: (book: {
+    title: string;
+    author: string;
+    description?: string;
+    notes?: string;
+    status?: string;
+    progress_percentage?: number;
+  }) =>
+    apiFetch<Book>('/books/custom', {
+      method: 'POST',
+      body: JSON.stringify(book),
+    }),
+
+  // Update a book (progress, status, notes, rating)
+  update: (
+    id: number,
+    updates: {
+      status?: string;
+      progress_percentage?: number;
+      notes?: string;
+      rating?: number;
+      completed_date?: string;
+    }
+  ) =>
+    apiFetch<Book>(`/books/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    }),
+
+  // Delete a user's book
+  delete: (id: number) =>
+    apiFetch<void>(`/books/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+/**
  * Auth API
  */
 export const authAPI = {
