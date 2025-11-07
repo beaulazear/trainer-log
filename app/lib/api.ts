@@ -3,6 +3,8 @@
  * Base URL points to the dog-walking-app backend on Render
  */
 
+import { TOKEN_KEY } from './constants';
+
 const BASE_URL = 'https://dog-walking-app.onrender.com';
 
 interface FetchOptions extends RequestInit {
@@ -22,7 +24,7 @@ async function apiFetch<T>(
   const id = setTimeout(() => controller.abort(), timeout);
 
   // Get JWT token from localStorage
-  const token = localStorage.getItem('auth_token');
+  const token = localStorage.getItem(TOKEN_KEY);
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -121,7 +123,7 @@ export const trainingSessionsAPI = {
 
   // Export training hours as CSV
   exportCSV: async () => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem(TOKEN_KEY);
     const response = await fetch(`${BASE_URL}/training_sessions/export`, {
       headers: {
         ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -285,7 +287,7 @@ export const petsAPI = {
 };
 
 /**
- * Auth API (for reference)
+ * Auth API
  */
 export const authAPI = {
   // Login
@@ -293,5 +295,11 @@ export const authAPI = {
     apiFetch<any>('/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
+    }),
+
+  // Logout
+  logout: () =>
+    apiFetch<void>('/logout', {
+      method: 'DELETE',
     }),
 };

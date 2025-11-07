@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { authAPI } from './api';
+import { authAPI, dashboardAPI } from './api';
+import { TOKEN_KEY } from './constants';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -12,8 +13,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const TOKEN_KEY = 'auth_token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,20 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Verify token is valid by making a request
-      const response = await fetch('https://dog-walking-app.onrender.com/training/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(true);
-      } else {
-        // Token is invalid, remove it
-        localStorage.removeItem(TOKEN_KEY);
-        setIsAuthenticated(false);
-      }
+      await dashboardAPI.get();
+      setIsAuthenticated(true);
     } catch (err) {
+      // Token is invalid, remove it
       localStorage.removeItem(TOKEN_KEY);
       setIsAuthenticated(false);
     } finally {
@@ -77,15 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (token) {
-        await fetch('https://dog-walking-app.onrender.com/logout', {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-      }
+      await authAPI.logout();
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
