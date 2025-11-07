@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       // Try to fetch dashboard data to verify session
-      const response = await fetch('http://localhost:3000/training/dashboard', {
+      const response = await fetch('https://dog-walking-app.onrender.com/training/dashboard', {
         credentials: 'include',
       });
       setIsAuthenticated(response.ok);
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('http://localhost:3000/logout', {
+      await fetch('https://dog-walking-app.onrender.com/logout', {
         method: 'DELETE',
         credentials: 'include',
       });
