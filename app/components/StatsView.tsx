@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, Clock, Users, Target, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { statsAPI } from '../lib/api';
+import { statsAPI, trainingSessionsAPI } from '../lib/api';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorAlert } from './ErrorAlert';
 
 export function StatsView() {
   const [statsData, setStatsData] = useState<any>(null);
+  const [summaryData, setSummaryData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,8 +19,12 @@ export function StatsView() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await statsAPI.get();
-      setStatsData(data);
+      const [stats, summary] = await Promise.all([
+        statsAPI.get(),
+        trainingSessionsAPI.getSummary(),
+      ]);
+      setStatsData(stats);
+      setSummaryData(summary);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load statistics');
     } finally {
@@ -161,11 +166,11 @@ export function StatsView() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-gray-600">Current Streak</span>
-            <span className="text-purple-600">🔥 12 days</span>
+            <span className="text-purple-600">🔥 {summaryData?.current_streak || 0} days</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-600">Longest Streak</span>
-            <span className="text-gray-900">14 days</span>
+            <span className="text-gray-900">{summaryData?.longest_streak || 0} days</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-600">This Month</span>

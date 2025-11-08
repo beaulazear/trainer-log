@@ -12,6 +12,7 @@ import "./app.css";
 import { AuthProvider } from "./lib/auth-context";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "manifest", href: "/trainer-log/manifest.json" },
   { rel: "icon", href: "/trainer-log/dog.png", sizes: "any" },
   { rel: "icon", href: "/trainer-log/dog.png", type: "image/png" },
   { rel: "apple-touch-icon", href: "/trainer-log/dog.png" },
@@ -32,7 +33,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+        {/* PWA Meta Tags */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Trainer Log" />
+        <meta name="theme-color" content="#9333ea" />
+
         <Meta />
         <Links />
       </head>
