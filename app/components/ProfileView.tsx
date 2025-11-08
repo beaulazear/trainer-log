@@ -141,6 +141,7 @@ export function ProfileView() {
           </div>
           <div>
             <div className="text-2xl mb-1">{booksRead}</div>
+            <br></br>
             <div className="text-purple-100 text-xs">Books</div>
           </div>
           <div>

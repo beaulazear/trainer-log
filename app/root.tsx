@@ -38,9 +38,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* PWA Meta Tags */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Trainer Log" />
-        <meta name="theme-color" content="#9333ea" />
+        <meta name="theme-color" content="#ffffff" />
 
         <Meta />
         <Links />

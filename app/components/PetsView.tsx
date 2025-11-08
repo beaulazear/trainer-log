@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, X, Check, Heart } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Check, Heart, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { petsAPI } from '../lib/api';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -25,6 +25,7 @@ export function PetsView() {
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
+  const [expandedPets, setExpandedPets] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     fetchPets();
@@ -88,6 +89,18 @@ export function PetsView() {
     }
   };
 
+  const togglePetExpanded = (petId: number) => {
+    setExpandedPets(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(petId)) {
+        newSet.delete(petId);
+      } else {
+        newSet.add(petId);
+      }
+      return newSet;
+    });
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -129,6 +142,8 @@ export function PetsView() {
               <PetCard
                 key={pet.id}
                 pet={pet}
+                isExpanded={expandedPets.has(pet.id)}
+                onToggleExpand={togglePetExpanded}
                 onEdit={handleEditPet}
                 onDelete={handleDeletePet}
                 onToggleActive={handleToggleActive}
@@ -147,6 +162,8 @@ export function PetsView() {
               <PetCard
                 key={pet.id}
                 pet={pet}
+                isExpanded={expandedPets.has(pet.id)}
+                onToggleExpand={togglePetExpanded}
                 onEdit={handleEditPet}
                 onDelete={handleDeletePet}
                 onToggleActive={handleToggleActive}
@@ -184,11 +201,15 @@ export function PetsView() {
 
 function PetCard({
   pet,
+  isExpanded,
+  onToggleExpand,
   onEdit,
   onDelete,
   onToggleActive,
 }: {
   pet: Pet;
+  isExpanded: boolean;
+  onToggleExpand: (petId: number) => void;
   onEdit: (pet: Pet) => void;
   onDelete: (id: number) => void;
   onToggleActive: (id: number, active: boolean) => void;
@@ -199,90 +220,124 @@ function PetCard({
 
   return (
     <div
-      className={`bg-white border rounded-2xl p-4 transition-all ${
+      className={`bg-white border rounded-2xl overflow-hidden transition-all ${
         pet.active ? 'border-gray-200' : 'border-gray-200 opacity-60'
       } ${!pet.origin_trainer && 'bg-blue-50/30'}`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-gray-900">{pet.name}</h3>
-            {pet.origin_trainer ? (
-              <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
-                TrainerPath
-              </span>
-            ) : (
-              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
-                Pocket Walks
-              </span>
-            )}
-            {!pet.active && (
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                Inactive
-              </span>
-            )}
-          </div>
-          <p className="text-gray-600 text-sm">
-            {pet.sex} • {age !== null ? `${age} years old` : 'Age unknown'} •{' '}
-            {pet.spayed_neutered ? 'Fixed' : 'Not fixed'}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => onEdit(pet)}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-          >
-            <Pencil className="w-4 h-4 text-gray-600" />
-          </button>
-          {pet.origin_trainer && (
-            <button
-              onClick={() => onDelete(pet.id)}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors"
-            >
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-2 text-sm">
-        <div>
-          <span className="text-gray-500">Address:</span>
-          <p className="text-gray-700">{pet.address}</p>
-        </div>
-
-        {pet.behavioral_notes && (
-          <div>
-            <span className="text-gray-500">Behavioral Notes:</span>
-            <p className="text-gray-700">{pet.behavioral_notes}</p>
-          </div>
-        )}
-
-        {pet.allergies && (
-          <div>
-            <span className="text-gray-500">Allergies:</span>
-            <p className="text-gray-700">{pet.allergies}</p>
-          </div>
-        )}
-
-        {pet.supplies_location && (
-          <div>
-            <span className="text-gray-500">Supplies:</span>
-            <p className="text-gray-700">{pet.supplies_location}</p>
-          </div>
-        )}
-      </div>
-
-      <button
-        onClick={() => onToggleActive(pet.id, pet.active)}
-        className={`mt-3 w-full py-2 rounded-xl text-sm transition-all ${
-          pet.active
-            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-        }`}
+      {/* Clickable Header */}
+      <div
+        className="p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
+        onClick={() => onToggleExpand(pet.id)}
       >
-        {pet.active ? 'Mark as Inactive' : 'Mark as Active'}
-      </button>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-gray-900">{pet.name}</h3>
+              {pet.origin_trainer ? (
+                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+                  TrainerPath
+                </span>
+              ) : (
+                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                  Pocket Walks
+                </span>
+              )}
+              {!pet.active && (
+                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                  Inactive
+                </span>
+              )}
+            </div>
+            <p className="text-gray-600 text-sm">
+              {pet.sex} • {age !== null ? `${age} years old` : 'Age unknown'} •{' '}
+              {pet.spayed_neutered ? 'Fixed' : 'Not fixed'}
+            </p>
+          </div>
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(pet);
+              }}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Pencil className="w-4 h-4 text-gray-600" />
+            </button>
+            {pet.origin_trainer && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(pet.id);
+                }}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 text-red-500" />
+              </button>
+            )}
+            <ChevronDown
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                isExpanded ? 'rotate-180' : ''
+              }`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Expandable Details */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="px-4 pb-4 space-y-3 border-t border-gray-100">
+              <div className="space-y-2 text-sm pt-3">
+                <div>
+                  <span className="text-gray-500">Address:</span>
+                  <p className="text-gray-700">{pet.address}</p>
+                </div>
+
+                {pet.behavioral_notes && (
+                  <div>
+                    <span className="text-gray-500">Behavioral Notes:</span>
+                    <p className="text-gray-700">{pet.behavioral_notes}</p>
+                  </div>
+                )}
+
+                {pet.allergies && (
+                  <div>
+                    <span className="text-gray-500">Allergies:</span>
+                    <p className="text-gray-700">{pet.allergies}</p>
+                  </div>
+                )}
+
+                {pet.supplies_location && (
+                  <div>
+                    <span className="text-gray-500">Supplies:</span>
+                    <p className="text-gray-700">{pet.supplies_location}</p>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleActive(pet.id, pet.active);
+                }}
+                className={`w-full py-2 rounded-xl text-sm transition-all ${
+                  pet.active
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                }`}
+              >
+                {pet.active ? 'Mark as Inactive' : 'Mark as Active'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
