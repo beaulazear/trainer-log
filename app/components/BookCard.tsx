@@ -1,4 +1,4 @@
-import { BookOpen, Plus, Star, Trash2 } from 'lucide-react';
+import { BookOpen, Plus, Star, Trash2, ShoppingCart, Headphones } from 'lucide-react';
 import type { Book } from '../lib/api';
 
 interface BookCardProps {
@@ -82,19 +82,13 @@ export function BookCard({
         </div>
       </div>
 
-      {/* Progress Bar (for user books in progress) */}
+      {/* Reading Animation (for user books in progress) */}
       {isUserBook && book.status === 'in_progress' && (
-        <div className="mb-3">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-            <span>Progress</span>
-            <span>{book.progress_percentage}%</span>
+        <div className="mb-3 flex items-center gap-2 text-sm text-purple-600">
+          <div className="flex gap-1 animate-pulse">
+            <BookOpen className="w-4 h-4" />
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
-              style={{ width: `${book.progress_percentage}%` }}
-            />
-          </div>
+          <span className="font-medium">Currently Reading...</span>
         </div>
       )}
 
@@ -127,6 +121,34 @@ export function BookCard({
         )}
         {book.price_range && <div className="text-purple-600 font-medium">{book.price_range}</div>}
       </div>
+
+      {/* Purchase Links */}
+      {(book.purchase_url || book.audible_url) && (
+        <div className="flex gap-2 mb-3">
+          {book.purchase_url && (
+            <a
+              href={book.purchase_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2 px-3 rounded-xl text-xs font-medium bg-orange-50 text-orange-700 hover:bg-orange-100 transition-all flex items-center justify-center gap-1.5"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              Buy on Amazon
+            </a>
+          )}
+          {book.audible_url && (
+            <a
+              href={book.audible_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2 px-3 rounded-xl text-xs font-medium bg-amber-50 text-amber-700 hover:bg-amber-100 transition-all flex items-center justify-center gap-1.5"
+            >
+              <Headphones className="w-3.5 h-3.5" />
+              Listen on Audible
+            </a>
+          )}
+        </div>
+      )}
 
       {/* Actions */}
       {!isUserBook ? (

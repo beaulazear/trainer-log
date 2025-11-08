@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Award, Target, Calendar, Download, Settings, ChevronRight, LogOut, Pencil, X, Check, User } from 'lucide-react';
+import { Award, Target, Calendar, Download, Settings, ChevronRight, LogOut, Pencil, X, Check, User, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { certificationGoalAPI, milestonesAPI, trainingSessionsAPI } from '../lib/api';
+import { certificationGoalAPI, milestonesAPI, trainingSessionsAPI, booksAPI } from '../lib/api';
 import { useAuth } from '../lib/auth-context';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorAlert } from './ErrorAlert';
@@ -11,6 +11,7 @@ export function ProfileView() {
   const [goalData, setGoalData] = useState<any>(null);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
+  const [books, setBooks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditGoalOpen, setIsEditGoalOpen] = useState(false);
@@ -25,14 +26,16 @@ export function ProfileView() {
     try {
       setIsLoading(true);
       setError(null);
-      const [goal, milestonesData, summaryData] = await Promise.all([
+      const [goal, milestonesData, summaryData, booksData] = await Promise.all([
         certificationGoalAPI.get().catch(() => null),
         milestonesAPI.getAll().catch(() => []),
         trainingSessionsAPI.getSummary().catch(() => null),
+        booksAPI.getMyList().catch(() => []),
       ]);
       setGoalData(goal);
       setMilestones(milestonesData);
       setSummary(summaryData);
+      setBooks(booksData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile data');
     } finally {
@@ -80,6 +83,22 @@ export function ProfileView() {
     unlocked: milestones.some(m => m.hours_reached === config.hours),
   }));
 
+  // Book achievements
+  const booksRead = books.filter(b => b.status === 'read').length;
+  const bookMilestoneConfig = [
+    { books: 5, name: '5 Books', emoji: '📚' },
+    { books: 10, name: '10 Books', emoji: '📖' },
+    { books: 15, name: '15 Books', emoji: '🎓' },
+    { books: 25, name: '25 Books', emoji: '🧠' },
+    { books: 50, name: '50 Books', emoji: '🏅' },
+  ];
+
+  const bookAchievements = bookMilestoneConfig.map(config => ({
+    ...config,
+    id: config.books,
+    unlocked: booksRead >= config.books,
+  }));
+
   return (
     <div className="px-6 pt-8 pb-6">
       {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
@@ -111,7 +130,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/20">
+        <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-white/20">
           <div>
             <div className="text-2xl mb-1">{summary?.total_hours?.toFixed(1) || '0'}</div>
             <div className="text-purple-100 text-xs">Hours</div>
@@ -121,8 +140,12 @@ export function ProfileView() {
             <div className="text-purple-100 text-xs">Sessions</div>
           </div>
           <div>
+            <div className="text-2xl mb-1">{booksRead}</div>
+            <div className="text-purple-100 text-xs">Books</div>
+          </div>
+          <div>
             <div className="text-2xl mb-1">{summary?.current_streak || '0'}</div>
-            <div className="text-purple-100 text-xs">Day Streak</div>
+            <div className="text-purple-100 text-xs">Streak</div>
           </div>
         </div>
       </div>
@@ -166,11 +189,11 @@ export function ProfileView() {
         </div>
       </div>
 
-      {/* Achievements */}
+      {/* Training Hours Achievements */}
       <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6">
         <div className="flex items-center gap-3 mb-4">
           <Award className="w-5 h-5 text-purple-600" />
-          <h3 className="text-gray-900">Achievements</h3>
+          <h3 className="text-gray-900">Training Hours</h3>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
@@ -187,6 +210,35 @@ export function ProfileView() {
                 {achievement.emoji}
               </div>
               <div className={`text-xs text-center ${achievement.unlocked ? 'text-purple-700' : 'text-gray-400'}`}>
+                {achievement.name}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Book Reading Achievements */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <BookOpen className="w-5 h-5 text-orange-600" />
+          <h3 className="text-gray-900">Books Read</h3>
+          <span className="ml-auto text-sm text-gray-600">{booksRead} completed</span>
+        </div>
+
+        <div className="grid grid-cols-5 gap-2">
+          {bookAchievements.map((achievement) => (
+            <div
+              key={achievement.id}
+              className={`aspect-square rounded-xl flex flex-col items-center justify-center ${
+                achievement.unlocked
+                  ? 'bg-gradient-to-br from-orange-100 to-amber-50 border-2 border-orange-300'
+                  : 'bg-gray-100 border-2 border-gray-200'
+              }`}
+            >
+              <div className={`text-2xl mb-1 ${!achievement.unlocked && 'opacity-30'}`}>
+                {achievement.emoji}
+              </div>
+              <div className={`text-xs text-center ${achievement.unlocked ? 'text-orange-700' : 'text-gray-400'}`}>
                 {achievement.name}
               </div>
             </div>

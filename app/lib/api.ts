@@ -310,6 +310,8 @@ export interface Book {
   why_you_need_it?: string;
   best_for?: string;
   completed_date?: string;
+  purchase_url?: string;
+  audible_url?: string;
 }
 
 export const booksAPI = {

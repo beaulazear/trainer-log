@@ -130,27 +130,53 @@ export function BooksView() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-3 mb-6 overflow-x-auto">
-        <button
-          onClick={() => setActiveTab('recommended')}
-          className={`px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-            activeTab === 'recommended'
-              ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md'
-              : 'bg-white text-gray-600 border border-gray-200 hover:border-purple-300'
-          }`}
-        >
-          Recommended Resources ({defaultBooks.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('my-list')}
-          className={`px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-            activeTab === 'my-list'
-              ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md'
-              : 'bg-white text-gray-600 border border-gray-200 hover:border-purple-300'
-          }`}
-        >
-          My Reading List ({myBooks.length})
-        </button>
+      <div className="border-b border-gray-200 mb-6">
+        <div className="flex gap-8 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('recommended')}
+            className={`pb-4 px-2 font-medium transition-all whitespace-nowrap relative ${
+              activeTab === 'recommended'
+                ? 'text-purple-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              Recommended Resources
+              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                activeTab === 'recommended'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                {defaultBooks.length}
+              </span>
+            </span>
+            {activeTab === 'recommended' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('my-list')}
+            className={`pb-4 px-2 font-medium transition-all whitespace-nowrap relative ${
+              activeTab === 'my-list'
+                ? 'text-purple-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              My Reading List
+              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                activeTab === 'my-list'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                {myBooks.length}
+              </span>
+            </span>
+            {activeTab === 'my-list' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Recommended Resources Tab */}
