@@ -36,7 +36,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-blue-50 flex items-start justify-center px-6 pt-12 sm:pt-20">
       <div className="max-w-md w-full">
         {/* Logo/Header */}
         <div className="text-center mb-8">
