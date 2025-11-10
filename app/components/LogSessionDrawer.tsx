@@ -133,7 +133,10 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[60] max-h-[90vh] overflow-y-auto"
+            style={{
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)',
+            }}
           >
             <div className="max-w-md mx-auto">
               {/* Header */}
@@ -148,7 +151,7 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
               </div>
 
               {/* Content */}
-              <div className="p-6 space-y-6">
+              <div className="p-6 pb-8 space-y-6">
                 {/* Date */}
                 <div>
                   <label className="block text-gray-700 mb-2">Date</label>
