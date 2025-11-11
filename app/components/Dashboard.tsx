@@ -178,16 +178,25 @@ export function Dashboard() {
 
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-              <Award className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent mb-1">
+                  Trainer Log
+                </h1>
+                <p className="text-sm text-gray-500">by Pocket Walks</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent mb-1">
-                Trainer Log
-              </h1>
-              <p className="text-sm text-gray-500">by Pocket Walks</p>
-            </div>
+            {/* Add Session Button */}
+            <button
+              onClick={() => setIsLogDrawerOpen(true)}
+              className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center flex-shrink-0"
+            >
+              <Plus className="w-6 h-6" />
+            </button>
           </div>
           <p className="text-gray-600 text-lg">Your journey to certification</p>
         </div>
@@ -292,13 +301,6 @@ export function Dashboard() {
         </button>
       )}
 
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsLogDrawerOpen(true)}
-        className="fixed bottom-24 right-6 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center z-10"
-      >
-        <Plus className="w-8 h-8" />
-      </button>
 
       {/* Log Session Drawer */}
       <LogSessionDrawer
