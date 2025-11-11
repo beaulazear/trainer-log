@@ -192,6 +192,42 @@ export const milestonesAPI = {
 };
 
 /**
+ * Blogs API
+ */
+export const blogsAPI = {
+  // Get all blogs
+  getAll: () => apiFetch<Blog[]>('/blogs'),
+
+  // Create a new blog
+  create: (blog: {
+    pet_id?: number;
+    content: string;
+    training_focus?: string[];
+  }) =>
+    apiFetch<Blog>('/blogs', {
+      method: 'POST',
+      body: JSON.stringify({ blog }),
+    }),
+
+  // Update a blog
+  update: (id: number, blog: {
+    pet_id?: number;
+    content?: string;
+    training_focus?: string[];
+  }) =>
+    apiFetch<Blog>(`/blogs/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ blog }),
+    }),
+
+  // Delete a blog
+  delete: (id: number) =>
+    apiFetch<void>(`/blogs/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+/**
  * Dashboard API
  */
 export const dashboardAPI = {
@@ -215,6 +251,7 @@ export const dashboardAPI = {
       };
       projected_completion: string;
       recent_sessions: any[];
+      recent_blogs: Blog[];
       uncelebrated_milestones: any[];
     }>('/training/dashboard'),
 };
@@ -285,6 +322,23 @@ export const petsAPI = {
       body: JSON.stringify({ active }),
     }),
 };
+
+/**
+ * Blogs API
+ */
+export interface Blog {
+  id: number;
+  user_id: number;
+  pet_id?: number;
+  content: string;
+  training_focus: string[];
+  created_at: string;
+  updated_at: string;
+  pet?: {
+    id: number;
+    name: string;
+  };
+}
 
 /**
  * Books API

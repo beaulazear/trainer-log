@@ -6,7 +6,7 @@ import { MilestoneCelebration } from './MilestoneCelebration';
 import { RecentSessions } from './RecentSessions';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorAlert } from './ErrorAlert';
-import { dashboardAPI, trainingSessionsAPI } from '../lib/api';
+import { dashboardAPI, trainingSessionsAPI, blogsAPI, type Blog } from '../lib/api';
 
 export interface Session {
   id: string;
@@ -35,6 +35,7 @@ interface DashboardData {
   };
   projected_completion: string;
   recent_sessions: any[];
+  recent_blogs: Blog[];
   uncelebrated_milestones: any[];
 }
 
@@ -108,6 +109,33 @@ export function Dashboard() {
     }
   };
 
+  const handleLogBlog = async (blog: {
+    petId?: number;
+    dogName: string;
+    content: string;
+    focus: string[];
+  }) => {
+    try {
+      setError(null);
+
+      // Convert to API format
+      const apiBlog = {
+        pet_id: blog.petId,
+        content: blog.content,
+        training_focus: blog.focus,
+      };
+
+      // Create new blog
+      await blogsAPI.create(apiBlog);
+
+      // Refresh dashboard data
+      await fetchDashboardData();
+      setIsLogDrawerOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save blog');
+    }
+  };
+
   const handleEditSession = (session: Session) => {
     setEditingSession(session);
     setIsLogDrawerOpen(true);
@@ -160,7 +188,7 @@ export function Dashboard() {
     );
   }
 
-  const { progress, streaks, this_week, projected_completion, recent_sessions } = dashboardData;
+  const { progress, streaks, this_week, projected_completion, recent_sessions, recent_blogs } = dashboardData;
 
   // Transform API sessions to component format
   const transformedSessions: Session[] = recent_sessions.map((session: any) => ({
@@ -280,8 +308,8 @@ export function Dashboard() {
 
         {/* Recent Sessions */}
         <div className="mb-6">
-          <h3 className="text-gray-900 text-xl font-bold mb-4">Recent Training Sessions</h3>
-          <RecentSessions sessions={transformedSessions} onEdit={handleEditSession} />
+          <h3 className="text-gray-900 text-xl font-bold mb-4">Recent Activity</h3>
+          <RecentSessions sessions={transformedSessions} blogs={recent_blogs} onEdit={handleEditSession} />
         </div>
       </div>
 
@@ -307,6 +335,7 @@ export function Dashboard() {
         isOpen={isLogDrawerOpen}
         onClose={handleCloseDrawer}
         onSave={handleLogSession}
+        onSaveBlog={handleLogBlog}
         editSession={editingSession}
       />
 

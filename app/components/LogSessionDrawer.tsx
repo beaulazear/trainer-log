@@ -14,6 +14,13 @@ interface LogSessionDrawerProps {
     duration: number;
     focus: string[];
   }) => void;
+  onSaveBlog?: (blog: {
+    id?: number;
+    petId?: number;
+    dogName: string;
+    content: string;
+    focus: string[];
+  }) => void;
   editSession?: {
     id: string;
     date: string;
@@ -41,10 +48,12 @@ const focusTags = [
   'Other',
 ];
 
-export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSessionDrawerProps) {
+export function LogSessionDrawer({ isOpen, onClose, onSave, onSaveBlog, editSession }: LogSessionDrawerProps) {
+  const [entryType, setEntryType] = useState<'log' | 'blog'>('log');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [duration, setDuration] = useState(60);
   const [customDuration, setCustomDuration] = useState('');
+  const [content, setContent] = useState('');
   const [selectedPetId, setSelectedPetId] = useState<number | undefined>(undefined);
   const [pets, setPets] = useState<Pet[]>([]);
   const [isLoadingPets, setIsLoadingPets] = useState(false);
@@ -56,16 +65,20 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
 
       // Pre-populate form when editing
       if (editSession) {
+        setEntryType('log');
         setDate(editSession.date);
         setDuration(editSession.duration);
         setSelectedPetId(editSession.petId);
         setSelectedFocus(editSession.focus || []);
         setCustomDuration('');
+        setContent('');
       } else {
         // Reset form for new session
+        setEntryType('log');
         setDate(new Date().toISOString().split('T')[0]);
         setDuration(60);
         setCustomDuration('');
+        setContent('');
         setSelectedPetId(undefined);
         setSelectedFocus([]);
       }
@@ -86,22 +99,36 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
   };
 
   const handleSave = () => {
-    const finalDuration = customDuration ? parseInt(customDuration) : duration;
     const selectedPet = pets.find(p => p.id === selectedPetId);
 
-    onSave({
-      id: editSession?.id,
-      date,
-      petId: selectedPetId,
-      dogName: selectedPet?.name || editSession?.dogName || 'General Training',
-      duration: finalDuration,
-      focus: selectedFocus.length > 0 ? selectedFocus : ['General Training'],
-    });
+    if (entryType === 'blog') {
+      if (!onSaveBlog) return;
+
+      onSaveBlog({
+        petId: selectedPetId,
+        dogName: selectedPet?.name || 'General',
+        content: content,
+        focus: selectedFocus.length > 0 ? selectedFocus : [],
+      });
+    } else {
+      const finalDuration = customDuration ? parseInt(customDuration) : duration;
+
+      onSave({
+        id: editSession?.id,
+        date,
+        petId: selectedPetId,
+        dogName: selectedPet?.name || editSession?.dogName || 'General Training',
+        duration: finalDuration,
+        focus: selectedFocus.length > 0 ? selectedFocus : ['General Training'],
+      });
+    }
 
     // Reset form
+    setEntryType('log');
     setDate(new Date().toISOString().split('T')[0]);
     setDuration(60);
     setCustomDuration('');
+    setContent('');
     setSelectedPetId(undefined);
     setSelectedFocus([]);
   };
@@ -141,7 +168,9 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
             <div className="max-w-md mx-auto w-full px-2">
               {/* Header */}
               <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200">
-                <h2 className="text-gray-900">{editSession ? 'Edit Training Session' : 'Log Training Session'}</h2>
+                <h2 className="text-gray-900">
+                  {editSession ? 'Edit Training Session' : entryType === 'blog' ? 'New Blog Note' : 'Log Training Session'}
+                </h2>
                 <button
                   onClick={onClose}
                   className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -152,19 +181,67 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
 
               {/* Content */}
               <div className="p-4 md:p-6 pb-8 space-y-6">
-                {/* Date */}
-                <div>
-                  <label className="block text-gray-700 mb-2">Date</label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
+                {/* Entry Type Toggle - only show when not editing */}
+                {!editSession && (
+                  <div>
+                    <label className="block text-gray-700 mb-3">Entry Type</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setEntryType('log')}
+                        className={`py-4 px-4 rounded-xl transition-all ${
+                          entryType === 'log'
+                            ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <div className="font-medium">Training Log</div>
+                        <div className="text-xs opacity-80 mt-1">Track session time</div>
+                      </button>
+                      <button
+                        onClick={() => setEntryType('blog')}
+                        className={`py-4 px-4 rounded-xl transition-all ${
+                          entryType === 'blog'
+                            ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <div className="font-medium">Blog Note</div>
+                        <div className="text-xs opacity-80 mt-1">Quick notes</div>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                {/* Duration Quick Picks */}
-                <div>
+                {/* Date - only show for logs */}
+                {entryType === 'log' && (
+                  <div>
+                    <label className="block text-gray-700 mb-2">Date</label>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                )}
+
+                {/* Content - only show for blogs */}
+                {entryType === 'blog' && (
+                  <div>
+                    <label className="block text-gray-700 mb-2">Notes</label>
+                    <textarea
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your training notes..."
+                      rows={6}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    />
+                  </div>
+                )}
+
+                {/* Duration Quick Picks - only show for logs */}
+                {entryType === 'log' && (
+                  <div>
                   <label className="block text-gray-700 mb-3">Duration</label>
                   <div className="grid grid-cols-3 gap-3 mb-3">
                     {[30, 60, 90].map((mins) => (
@@ -198,6 +275,7 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
                     />
                   </div>
                 </div>
+                )}
 
                 {/* Pet Selection */}
                 <div>
@@ -256,7 +334,13 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
                   className="w-full py-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-5 h-5" />
-                  <span>{editSession ? 'Update Session' : 'Save Session'}</span>
+                  <span>
+                    {editSession
+                      ? 'Update Session'
+                      : entryType === 'blog'
+                        ? 'Save Blog'
+                        : 'Save Session'}
+                  </span>
                 </button>
               </div>
             </div>
