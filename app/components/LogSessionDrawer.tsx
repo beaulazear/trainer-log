@@ -133,14 +133,14 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[60] max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[60] max-h-[90vh] overflow-y-auto overflow-x-hidden"
             style={{
               paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)',
             }}
           >
-            <div className="max-w-md mx-auto">
+            <div className="max-w-md mx-auto w-full px-2">
               {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200">
                 <h2 className="text-gray-900">{editSession ? 'Edit Training Session' : 'Log Training Session'}</h2>
                 <button
                   onClick={onClose}
@@ -151,7 +151,7 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
               </div>
 
               {/* Content */}
-              <div className="p-6 pb-8 space-y-6">
+              <div className="p-4 md:p-6 pb-8 space-y-6">
                 {/* Date */}
                 <div>
                   <label className="block text-gray-700 mb-2">Date</label>
@@ -159,7 +159,7 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, editSession }: LogSe
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full max-w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 

@@ -63,11 +63,14 @@ export function BookFormDrawer({ isOpen, onClose, onSave }: BookFormDrawerProps)
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto overflow-x-hidden"
+            style={{
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)',
+            }}
           >
-            <div className="max-w-md mx-auto">
+            <div className="max-w-md mx-auto w-full px-2">
               {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                     <BookOpen className="w-5 h-5 text-white" />
@@ -83,7 +86,7 @@ export function BookFormDrawer({ isOpen, onClose, onSave }: BookFormDrawerProps)
               </div>
 
               {/* Content */}
-              <div className="p-6 space-y-6">
+              <div className="p-4 md:p-6 pb-12 space-y-6">
                 <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
                   <p className="text-sm text-orange-800">
                     <strong>User Recommendation:</strong> This book will be added as a personal
