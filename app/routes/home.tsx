@@ -5,6 +5,7 @@ import { Dashboard } from '../components/Dashboard';
 import { StatsView } from '../components/StatsView';
 import { ProfileView } from '../components/ProfileView';
 import { PetsView } from '../components/PetsView';
+import { PetActivityView } from '../components/PetActivityView';
 import { BooksView } from '../components/BooksView';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useAuth } from '../lib/auth-context';
@@ -21,6 +22,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function HomePage() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [selectedPet, setSelectedPet] = useState<{ id: number; name: string } | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -29,6 +31,14 @@ export default function HomePage() {
       navigate('/login');
     }
   }, [isAuthenticated, isLoading, navigate]);
+
+  const handleViewPetActivity = (petId: number, petName: string) => {
+    setSelectedPet({ id: petId, name: petName });
+  };
+
+  const handleBackToPets = () => {
+    setSelectedPet(null);
+  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -44,20 +54,30 @@ export default function HomePage() {
       <div className="max-w-md mx-auto">
         {currentView === 'dashboard' && <Dashboard />}
         {currentView === 'stats' && <StatsView />}
-        {currentView === 'pets' && <PetsView />}
+        {currentView === 'pets' && !selectedPet && (
+          <PetsView onViewPetActivity={handleViewPetActivity} />
+        )}
+        {currentView === 'pets' && selectedPet && (
+          <PetActivityView
+            petId={selectedPet.id}
+            petName={selectedPet.name}
+            onBack={handleBackToPets}
+          />
+        )}
         {currentView === 'books' && <BooksView />}
         {currentView === 'profile' && <ProfileView />}
       </div>
 
-      {/* Bottom Navigation - Mobile First */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50"
-        style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          transform: 'translate3d(0, 0, 0)',
-          backfaceVisibility: 'hidden'
-        }}
-      >
+      {/* Bottom Navigation - Mobile First (Hidden when viewing pet activity) */}
+      {!selectedPet && (
+        <nav
+          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50"
+          style={{
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            transform: 'translate3d(0, 0, 0)',
+            backfaceVisibility: 'hidden'
+          }}
+        >
         <div className="max-w-md mx-auto flex items-center justify-around px-6 py-3 pb-0">
           <button
             onClick={() => setCurrentView('dashboard')}
@@ -119,7 +139,8 @@ export default function HomePage() {
             <span className="text-xs">Profile</span>
           </button>
         </div>
-      </nav>
+        </nav>
+      )}
     </div>
   );
 }

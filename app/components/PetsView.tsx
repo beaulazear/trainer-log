@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, X, Check, Heart, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Check, Heart, ChevronDown, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { petsAPI } from '../lib/api';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -19,7 +19,11 @@ interface Pet {
   origin_trainer: boolean;
 }
 
-export function PetsView() {
+interface PetsViewProps {
+  onViewPetActivity?: (petId: number, petName: string) => void;
+}
+
+export function PetsView({ onViewPetActivity }: PetsViewProps = {}) {
   const [pets, setPets] = useState<Pet[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -147,6 +151,7 @@ export function PetsView() {
                 onEdit={handleEditPet}
                 onDelete={handleDeletePet}
                 onToggleActive={handleToggleActive}
+                onViewActivity={onViewPetActivity}
               />
             ))}
           </div>
@@ -167,6 +172,7 @@ export function PetsView() {
                 onEdit={handleEditPet}
                 onDelete={handleDeletePet}
                 onToggleActive={handleToggleActive}
+                onViewActivity={onViewPetActivity}
               />
             ))}
           </div>
@@ -206,6 +212,7 @@ function PetCard({
   onEdit,
   onDelete,
   onToggleActive,
+  onViewActivity,
 }: {
   pet: Pet;
   isExpanded: boolean;
@@ -213,6 +220,7 @@ function PetCard({
   onEdit: (pet: Pet) => void;
   onDelete: (id: number) => void;
   onToggleActive: (id: number, active: boolean) => void;
+  onViewActivity?: (petId: number, petName: string) => void;
 }) {
   const age = pet.birthdate
     ? Math.floor((new Date().getTime() - new Date(pet.birthdate).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
@@ -321,19 +329,33 @@ function PetCard({
                 )}
               </div>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleActive(pet.id, pet.active);
-                }}
-                className={`w-full py-2 rounded-xl text-sm transition-all ${
-                  pet.active
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                }`}
-              >
-                {pet.active ? 'Mark as Inactive' : 'Mark as Active'}
-              </button>
+              <div className="space-y-2">
+                {onViewActivity && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewActivity(pet.id, pet.name);
+                    }}
+                    className="w-full py-2 rounded-xl text-sm transition-all bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span>View All Activity</span>
+                  </button>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleActive(pet.id, pet.active);
+                  }}
+                  className={`w-full py-2 rounded-xl text-sm transition-all ${
+                    pet.active
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  }`}
+                >
+                  {pet.active ? 'Mark as Inactive' : 'Mark as Active'}
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

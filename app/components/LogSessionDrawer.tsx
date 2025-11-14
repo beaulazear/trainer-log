@@ -234,6 +234,9 @@ export function LogSessionDrawer({ isOpen, onClose, onSave, onSaveBlog, editSess
                       onChange={(e) => setContent(e.target.value)}
                       placeholder="Write your training notes..."
                       rows={6}
+                      autoComplete="on"
+                      autoCorrect="on"
+                      spellCheck={true}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                     />
                   </div>
